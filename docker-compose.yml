@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  mariadb:
+          image: mariadb:latest
+          restart: always
+          command: --character_set_client-utf8 --character-set-server-utf8mb4 --collation-server-utf8mb4_unicode_ci --character-set-client-handshaker-FALSE
+          volumes:
+          - dolibar_db:/var/lib/mysql
+          environment:
+          - "MYSQL_ROOT_PASSWORD=BOLEYN"
+          - "MYSQL_PASSWORD=BOLEYN"
+          - "MYSQL_DATABASE=dolibarr"
+          - "MYSQL_USER=dolibarr"
+          
+  dolibarr:
+          build: ./
+          image: ocr-docker-build
+          container_name: dolibarr
+          restart: always
+          depends_on:
+          - mariadb
+          ports:
+          - "80:80"
+          environment:
+          - "DOLI_DB_HOST=mariadb"
+          - "DOLI_DB_NAME=dolibarr"
+          - "DOLI_DB_USER=dolibar"
+          - "DOLI_DB_PASSWORD=BOLEYN" 
+          volumes:
+          - dolibar_html:/var/www/html
+          - dolibarr_docs:/var/www/documents
+          - dolibar_db:/var/lib/mysql
+
+  dolinginx:
+          image: nginx:latest
+          container_name: dolibarrnginx
+          ports:
+          - "5432:5432"
+          depends_on:
+          - dolibarr
+          volumes:
+          - /src/dolibarr/html:/var/www/html
+          environment:
+          - NGINX_HOST=localhost      
+
+
+volumes:
+  dolibar_html:
+  dolibarr_docs:
+  dolibar_db:
+
+ 
+  
+           
