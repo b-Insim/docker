@@ -8,6 +8,30 @@ RUN apt-get update -yq \
     && apt-get install nodejs -y \
     && apt-get clean -y
 
+# installation PHP extension et configuration PHP-GD
+RUN buildDeps=" \
+        default-libmysqlclient-dev \
+        libbz2-dev \
+        libmemcached-dev \
+        libsas12-dev \
+    " \
+    runtimeDeps=" \
+        git \
+        libfreetype6-dev \
+        libicu-dev \
+        libjpeg-dev \
+        libldap2-dev \
+        libmemcachedutil2 \
+        libpng-dev \
+        libpq-dev \
+        libxml2-dev \
+        libzip-dev \
+    " \
+    && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y $builDeps $runtimeDeps \
+    && docker-php-ext-install bcmath calendar iconv intl mbstring mysqli opcache pdo_mysql pgsql soap \
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-install gd
+
 ENV DOLI_VERSION 10.0.3
 #RUN DEBIAN_FRONTEND=noninteractive apt-get -yq install {your- pkgs} 
 
